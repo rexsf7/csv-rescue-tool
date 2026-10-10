@@ -1,129 +1,96 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta name="google-site-verification" content="HZnUxog8przKs9VoNvuB1iZb7_eibFiq6W2No1t0T0g" />
   <meta charset="utf-8">
+  <meta name="google-site-verification" content="HZnUxog8przKs9VoNvuB1iZb7_eibFiq6W2No1t0T0g">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CSVファイルの列数不一致、空・重複ヘッダー、重複行をブラウザ内で確認。CSVを外部サーバーに送信せずに診断・変換できます。">
-  <title>CSVレスキュー｜CSV診断・変換ツール</title>
+  <meta name="description" content="CSVの文字化け・列数の不一致・重複行・空行を無料でチェック。UTF-8（BOM付き）変換や重複削除、空行削除をブラウザだけで実行。ファイルは送信されません。">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="CSVレスキュー｜無料CSV診断・文字化け対策・重複削除">
+  <meta property="og:description" content="CSVファイルをアップロードせずブラウザでチェック・変換。文字コード変換、重複・空行の整理に。">
+  <meta property="og:url" content="https://csv-rescue-tool.pages.dev/">
+  <link rel="canonical" href="https://csv-rescue-tool.pages.dev/">
+  <title>CSVレスキュー｜無料CSV診断・文字化け対策・重複行削除</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip-link" href="#main">本文へ移動</a>
   <header class="site-header">
     <div class="wrap header-inner">
       <a class="brand" href="./" aria-label="CSVレスキュー ホーム"><span class="brand-mark">CSV</span><span>レスキュー</span></a>
-      <span class="privacy-pill">ファイルはブラウザ内で処理</span>
+      <span class="privacy-pill">ファイルはブラウザ内だけで処理</span>
     </div>
   </header>
-
-  <main class="wrap">
+  <main id="main" class="wrap">
     <section class="hero">
-      <p class="eyebrow">FREE CSV TOOL</p>
-      <h1>CSVの困ったを、<br class="mobile-break">まとめてチェック。</h1>
-      <p class="hero-copy">列数のズレ、空の見出し、重複行を診断。CSVを外部サーバーへ送信せず、ブラウザ内で確認・変換できます。</p>
+      <p class="eyebrow">FREE CSV TOOL · 登録不要</p>
+      <h1>CSVの文字化け・重複・列ズレを<br class="desktop-break">無料でチェック。</h1>
+      <p class="hero-copy">CSVを読み込んで列数の不一致、重複行、空の見出しなどを診断。UTF-8変換や不要行の削除も、このページで完結します。</p>
+      <div class="hero-tags"><span>UTF-8 / Shift_JIS</span><span>Excel向けBOM付き</span><span>ファイル送信なし</span><span>インストール不要</span></div>
     </section>
 
     <section class="panel upload-panel" aria-labelledby="upload-title">
-      <div class="section-heading">
-        <div>
-          <p class="step-label">STEP 1</p>
-          <h2 id="upload-title">CSVファイルを選ぶ</h2>
-        </div>
-        <span class="file-badge">.csv</span>
-      </div>
+      <div class="section-heading"><div><p class="step-label">STEP 1</p><h2 id="upload-title">CSVファイルを選択</h2></div><span class="file-badge">CSV / TSV</span></div>
       <label class="drop-zone" id="drop-zone" for="file-input">
         <span class="upload-icon" aria-hidden="true">↑</span>
-        <strong>クリックしてCSVを選択</strong>
-        <span>または、このエリアにファイルをドロップ</span>
-        <small>まずは個人情報や機密情報を含まないサンプルでお試しください。</small>
+        <strong>クリックしてファイルを選択</strong>
+        <span>または、ここにドラッグ＆ドロップ</span>
+        <small>最大20MB。重要なデータは必ず元のファイルを保存してください。</small>
       </label>
-      <input id="file-input" type="file" accept=".csv,text/csv,.txt">
-      <div id="file-meta" class="file-meta" aria-live="polite">ファイルはまだ選択されていません。</div>
+      <input id="file-input" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values">
+      <p id="file-meta" class="file-meta" aria-live="polite">ファイルはまだ選択されていません。</p>
       <div class="controls">
-        <label for="encoding">文字コード</label>
-        <select id="encoding">
-          <option value="auto">自動判定（推定）</option>
-          <option value="utf-8">UTF-8</option>
-          <option value="shift_jis">Shift_JIS系（Windows向け）</option>
-        </select>
+        <div class="field"><label for="encoding">読み込み文字コード</label><select id="encoding"><option value="auto">自動判定（推定）</option><option value="utf-8">UTF-8</option><option value="shift_jis">Shift_JIS / Windows-31J</option></select></div>
+        <div class="field"><label for="delimiter">区切り文字</label><select id="delimiter"><option value=",">カンマ（,）</option><option value="tab">タブ（TSV）</option><option value=";">セミコロン（;）</option></select></div>
         <button id="analyze-btn" class="button primary" disabled>CSVを診断する</button>
       </div>
-      <p class="hint">文字コードの自動判定は推定です。文字化けする場合は「UTF-8」または「Shift_JIS系」を切り替えて再診断してください。</p>
+      <p class="hint">文字化けするときは文字コードを切り替えて再診断。Excelで使うCSVは「BOM付きUTF-8」での保存を試してください。</p>
       <p id="error" class="error" role="alert"></p>
     </section>
 
     <section id="results" class="results hidden" aria-labelledby="results-title">
-      <div class="section-heading results-heading">
-        <div>
-          <p class="step-label">STEP 2</p>
-          <h2 id="results-title">診断結果</h2>
-        </div>
-        <span id="status-pill" class="status-pill">診断済み</span>
-      </div>
+      <div class="section-heading results-heading"><div><p class="step-label">STEP 2</p><h2 id="results-title">診断結果</h2></div><span id="status-pill" class="status-pill">診断済み</span></div>
       <div id="summary" class="summary-grid"></div>
-      <div class="panel result-panel">
-        <h3>チェック内容</h3>
-        <div id="checks" class="check-list"></div>
-      </div>
-      <div class="panel result-panel">
-        <h3>データのプレビュー</h3>
-        <p class="hint">先頭10行まで表示します。セルの内容はこのブラウザ内だけで処理されます。</p>
-        <div class="table-wrap"><table id="preview"></table></div>
-      </div>
-      <div class="panel result-panel">
-        <h3>変換・修復してダウンロード</h3>
+      <section class="panel result-panel"><h3>チェック内容</h3><div id="checks" class="check-list" aria-live="polite"></div></section>
+      <section class="panel result-panel"><h3>データのプレビュー</h3><p class="hint before-table">見出し行＋データの先頭10行を表示します。元ファイルの内容を確認してから変換してください。</p><div class="table-wrap"><table id="preview"></table></div></section>
+      <section class="panel result-panel" aria-labelledby="download-title">
+        <h3 id="download-title">変換・整理してダウンロード</h3>
+        <p class="hint before-table">下の項目は任意です。元ファイルは変更されません。区切り文字はカンマに統一してCSVを保存します。</p>
         <div class="download-controls">
-          <label for="output-encoding">出力形式</label>
-          <select id="output-encoding">
-            <option value="utf-8-bom">UTF-8（BOM付き・Excel向け）</option>
-            <option value="utf-8">UTF-8（BOMなし）</option>
-          </select>
-          <label class="checkbox-line"><input type="checkbox" id="trim-cells"> セル前後の空白を削除</label>
-          <label class="checkbox-line"><input type="checkbox" id="remove-duplicates"> 完全に同じ行を削除（ヘッダー以外）</label>
-          <button id="download-btn" class="button primary">修復済みCSVをダウンロード</button>
+          <div class="field"><label for="output-encoding">出力形式</label><select id="output-encoding"><option value="utf-8-bom">UTF-8（BOM付き・Excel向け）</option><option value="utf-8">UTF-8（BOMなし）</option></select></div>
+          <label class="checkbox-line"><input type="checkbox" id="trim-cells"> セル前後の空白を削除する</label>
+          <label class="checkbox-line"><input type="checkbox" id="remove-duplicates"> 完全一致する重複行を削除する</label>
+          <label class="checkbox-line"><input type="checkbox" id="remove-empty-rows"> 空白だけのデータ行を削除する</label>
+          <label class="checkbox-line"><input type="checkbox" id="remove-empty-columns"> すべてのデータ行で空の列を削除する</label>
+          <label class="checkbox-line"><input type="checkbox" id="fix-headers"> 空白・重複している見出しを補正する</label>
+          <label class="checkbox-line"><input type="checkbox" id="pad-short-rows"> 列が足りない行の末尾に空欄を追加する</label>
+          <label class="checkbox-line"><input type="checkbox" id="safe-formulas"> Excelで数式になり得るセルの先頭に「'」を付ける</label>
+          <p id="export-summary" class="export-summary" aria-live="polite"></p>
+          <button id="download-btn" class="button primary">CSVをダウンロード</button>
         </div>
-        <p class="hint">元ファイルは変更しません。修復結果は新しいファイルとして保存されます。列のズレなど、意味を自動で判断できない問題は診断結果を確認してください。</p>
+        <p class="hint">列が多すぎる行や、データの意味を推測しないと直せない列ズレは自動修復しません。数式保護は値を書き換えるので、必要な場合だけ有効にしてください。</p>
+      </section>
+    </section>
+
+    <section class="section-guides" aria-labelledby="guides-title">
+      <div class="section-heading"><div><p class="step-label">HOW TO</p><h2 id="guides-title">よくあるCSVのトラブルと対処法</h2></div></div>
+      <div class="guide-grid">
+        <article class="panel guide-card"><p class="step-label">GUIDE 01</p><h3>CSVが文字化けする</h3><p>文字コードの違いで日本語が崩れる場合の確認方法。UTF-8やShift_JISの違いも解説。</p><a href="csv-mojibake.html">文字化けの直し方を見る →</a></article>
+        <article class="panel guide-card"><p class="step-label">GUIDE 02</p><h3>重複行や空行を削除する</h3><p>同じデータを整理するときの手順と、削除前に気をつけたいこと。</p><a href="csv-duplicates.html">重複行・空行の整理方法 →</a></article>
+        <article class="panel guide-card"><p class="step-label">GUIDE 03</p><h3>列数が合わない・列ズレが起きる</h3><p>カンマや引用符が原因になる理由と、修正の判断ポイント。</p><a href="csv-columns.html">列ズレの原因と対処法 →</a></article>
       </div>
     </section>
 
-    <section class="guide-grid">
-      <article class="panel guide-card">
-        <p class="step-label">GUIDE 01</p>
-        <h2>CSVが文字化けするとき</h2>
-        <p>ファイルの文字コードと、開くアプリが想定する文字コードが異なると文字化けすることがあります。文字コードを切り替えて読み込み、内容を確認してから保存してください。</p>
-      </article>
-      <article class="panel guide-card">
-        <p class="step-label">GUIDE 02</p>
-        <h2>列数が合わないとき</h2>
-        <p>カンマがデータの中に含まれている場合は、ダブルクォートで囲まれているか確認します。このツールは一般的なCSV形式を解析しますが、すべての独自形式に対応するものではありません。</p>
-      </article>
-      <article class="panel guide-card">
-        <p class="step-label">GUIDE 03</p>
-        <h2>プライバシーについて</h2>
-        <p>このツールはCSVの読み込み・診断・変換をブラウザ内で行い、ファイル内容を当サイトのサーバーへ送信しません。機密ファイルは、社内ルールを確認したうえで取り扱ってください。</p>
-      </article>
+    <section class="faq panel"><h2>よくある質問</h2>
+      <details><summary>無料で利用できますか？</summary><p>はい。現時点の診断・変換機能は登録不要で無料です。</p></details>
+      <details><summary>CSVの中身がサイト運営者に送られますか？</summary><p>いいえ。このツールのファイル読み込み・診断・変換はブラウザで行い、ファイルの内容を運営者のサーバーへ送る機能はありません。ページ表示に必要な通常の通信は発生します。</p></details>
+      <details><summary>Excelで文字化けしない形式にできますか？</summary><p>UTF-8（BOM付き）のダウンロードを試してください。ただし、Excelの環境やファイルの内容によって挙動は異なります。</p></details>
+      <details><summary>列ズレは自動で直せますか？</summary><p>列数の不一致を検出し、短い行の末尾への空欄追加は選べます。ただし、値が本来どの列に属するかは判定できないため、複雑な列ズレは元データを確認して修正してください。</p></details>
+      <details><summary>データが消えてしまうことはありますか？</summary><p>元ファイル自体は書き換えません。ただし、削除・補正の項目を選んで出力すると結果のCSVの内容が変わります。元ファイルを保管し、出力後に内容を確認してください。</p></details>
     </section>
-
-    <section class="faq panel">
-      <h2>よくある質問</h2>
-      <details><summary>本当に無料ですか？</summary><p>このツールの基本機能は無料で利用できます。</p></details>
-      <details><summary>ファイルはアップロードされますか？</summary><p>ファイルの内容はブラウザ内で処理します。ページを開くための通信は発生しますが、CSVの内容を外部サーバーへ送信する機能は実装していません。</p></details>
-      <details><summary>自動判定は必ず正しいですか？</summary><p>いいえ。文字コードによっては自動判定が難しい場合があります。文字化けする場合は文字コードを手動で選び、内容を確認してください。</p></details>
-    </section>
-
-    <section class="legal-links" aria-label="サイト情報">
-      <a href="privacy.html">プライバシーポリシー</a>
-      <a href="about.html">このサイトについて</a>
-      <a href="contact.html">お問い合わせ</a>
-    </section>
+    <nav class="legal-links" aria-label="サイト情報"><a href="privacy.html">プライバシーポリシー</a><a href="about.html">このサイトについて</a><a href="contact.html">お問い合わせ</a></nav>
   </main>
-
-  <footer class="site-footer">
-    <div class="wrap footer-inner">
-      <span>© <span id="year"></span> CSVレスキュー</span>
-      <span>CSV処理はお使いのブラウザ内で行われます。</span>
-    </div>
-  </footer>
+  <footer class="site-footer"><div class="wrap footer-inner"><span>© <span id="year"></span> CSVレスキュー</span><span>CSVはブラウザで処理されます。</span></div></footer>
   <script src="app.js"></script>
 </body>
 </html>

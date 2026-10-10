@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="CSVの重複行・空行・空列を削除する方法。完全一致の判定と注意点、ブラウザだけで行う手順を紹介します。"><title>CSVの重複行・空行を削除する方法｜CSVレスキュー</title><link rel="canonical" href="https://csv-rescue-tool.pages.dev/csv-duplicates.html"><link rel="stylesheet" href="style.css"></head>
+<body><header class="site-header"><div class="wrap header-inner"><a class="brand" href="./"><span class="brand-mark">CSV</span><span>レスキュー</span></a></div></header><main class="wrap article-main"><div class="breadcrumb"><a href="./">ホーム</a> › CSVの重複行</div><section class="hero"><p class="eyebrow">CSV GUIDE 02</p><h1>CSVの重複行・空行を安全に整理する方法</h1><p class="hero-copy">リストを統合したあとに同じ行が複数できたとき、CSVのデータを整理する手順です。</p></section><article class="panel article-body">
+<h2>重複行はどのように判定される？</h2><p>CSVレスキューでは、見出し行を除き、<strong>すべてのセルの内容と列数が完全に同じ</strong>データ行を重複と判定します。例えば「佐藤,営業」と「佐藤,営業」は重複ですが、「佐藤,営業」と「佐藤, 営業」は空白が異なるため、初期状態では別の行として扱います。</p>
+<pre><code>名前,部署
+佐藤,営業
+鈴木,開発
+佐藤,営業</code></pre>
+<p>上の例では、最後の「佐藤,営業」が重複行として検出されます。姓だけが同じ別人や、同じ商品を複数回購入した履歴は、内容に応じて慎重に判断してください。</p>
+<h2>重複した行を削除する手順</h2><ol><li><a href="./">CSVレスキュー</a>でCSVファイルを選び、診断します。</li><li>「チェック内容」で重複行の件数を確認します。</li><li>「完全一致する重複行を削除する」にチェックを入れます。</li><li>「出力予定」の件数が想定と合っているか確認してダウンロードします。</li></ol>
+<h2>空行と空列も整理できる</h2><p>すべてのセルが空白のデータ行は、任意で削除できます。「すべてのデータ行で空の列を削除する」を選ぶと、値がない列を削除できます。見出し名だけがある列も、すべてのデータ行が空なら削除対象になる点に注意してください。</p>
+<h2>前後の空白を取り除くには</h2><p>「セル前後の空白を削除する」を選ぶと、たとえば「 佐藤 」を「佐藤」に整えてから重複削除を行います。ただし、商品コードや文章の先頭・末尾の空白が意味を持つ場合は、選ばないでください。</p>
+<h2>削除前に確認したいこと</h2><ul><li>操作後は元ファイルを上書きせず、新しいCSVがダウンロードされます。</li><li>同一内容の行でも、注文履歴などでは削除してはいけない場合があります。</li><li>「空列を削除」は列構成が変わるため、別のシステムへ取り込む場合は特に注意してください。</li></ul>
+<p><a href="./">無料のCSV重複削除ツールを使う →</a></p></article></main><footer class="site-footer"><div class="wrap footer-inner"><span>© CSVレスキュー</span><a href="privacy.html">プライバシーポリシー</a></div></footer></body></html>

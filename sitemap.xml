@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://csv-rescue-tool.pages.dev/</loc>
-  </url>
-  <url>
-    <loc>https://csv-rescue-tool.pages.dev/about.html</loc>
-  </url>
-  <url>
-    <loc>https://csv-rescue-tool.pages.dev/privacy.html</loc>
-  </url>
-  <url>
-    <loc>https://csv-rescue-tool.pages.dev/contact.html</loc>
-  </url>
+  <url><loc>https://csv-rescue-tool.pages.dev/</loc></url>
+  <url><loc>https://csv-rescue-tool.pages.dev/csv-mojibake.html</loc></url>
+  <url><loc>https://csv-rescue-tool.pages.dev/csv-duplicates.html</loc></url>
+  <url><loc>https://csv-rescue-tool.pages.dev/csv-columns.html</loc></url>
+  <url><loc>https://csv-rescue-tool.pages.dev/about.html</loc></url>
+  <url><loc>https://csv-rescue-tool.pages.dev/privacy.html</loc></url>
+  <url><loc>https://csv-rescue-tool.pages.dev/contact.html</loc></url>
 </urlset>

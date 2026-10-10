@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://csv-rescue-tool.pages.dev/sitemap.xml
