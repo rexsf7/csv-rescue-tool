@@ -7,7 +7,8 @@ const ui = {
   error: $("error"), results: $("results"), summary: $("summary"),
   checks: $("checks"), preview: $("preview"), status: $("status-pill"),
   exportSummary: $("export-summary"), download: $("download-btn"),
-  outputEncoding: $("output-encoding"),
+  outputEncoding: $("output-encoding"), outputFormat: $("output-format"),
+  columnSelection: $("column-selection"),
   trim: $("trim-cells"), duplicates: $("remove-duplicates"), emptyRows: $("remove-empty-rows"),
   emptyColumns: $("remove-empty-columns"), headers: $("fix-headers"),
   padShort: $("pad-short-rows"), safeFormulas: $("safe-formulas")
@@ -27,7 +28,8 @@ ui.dropZone.addEventListener("drop", event => {
 });
 ui.analyze.addEventListener("click", analyzeFile);
 ui.download.addEventListener("click", downloadCsv);
-[ui.outputEncoding, ui.trim, ui.duplicates, ui.emptyRows, ui.emptyColumns, ui.headers, ui.padShort, ui.safeFormulas].forEach(el => el.addEventListener("change", updateExportSummary));
+[ui.outputEncoding, ui.outputFormat, ui.trim, ui.duplicates, ui.emptyRows, ui.emptyColumns, ui.headers, ui.padShort, ui.safeFormulas].forEach(el => el.addEventListener("change", updateExportSummary));
+ui.columnSelection.addEventListener("input", updateExportSummary);
 
 function setFile(file) {
   taskNumber += 1;
@@ -64,15 +66,16 @@ async function analyzeFile() {
     const bytes = new Uint8Array(await file.arrayBuffer());
     if (myTask !== taskNumber) return;
     const { text, encoding, inferred } = decodeCsv(bytes, ui.encoding.value);
-    const delimiter = ui.delimiter.value === "tab" ? "\t" : ui.delimiter.value;
+    const delimiter = ui.delimiter.value === "auto" ? detectDelimiter(text) : (ui.delimiter.value === "tab" ? "\t" : ui.delimiter.value);
     const { rows, lineNumbers } = parseDelimited(text, delimiter);
     if (rows.length === 0 || rows.every(row => row.every(value => value.trim() === ""))) {
       throw new Error("読み取れるデータがありません。区切り文字や文字コードを確認してください。");
     }
     const report = diagnose(rows, lineNumbers);
     if (myTask !== taskNumber) return;
-    activeData = { file, report, encoding, inferred };
-    renderReport(report, encoding, inferred);
+    activeData = { file, report, encoding, inferred, delimiter };
+    ui.columnSelection.value = "";
+    renderReport(report, encoding, inferred, delimiter);
     updateExportSummary();
     ui.results.classList.remove("hidden");
     ui.results.scrollIntoView({ block: "start", behavior: "smooth" });
@@ -100,6 +103,45 @@ function decodeCsv(bytes, chosen) {
   try { text = new TextDecoder(encoding, { fatal: true }).decode(bytes); }
   catch { throw new Error("指定した文字コードでは正しく読み取れません。文字コードを切り替えて再診断してください。"); }
   return { text: text.replace(/^\uFEFF/, ""), encoding, inferred };
+}
+
+// カンマ・タブ・セミコロンを推定。引用符の内側の区切り文字は数えない。
+// 判定できないときは一般的なカンマ区切りを既定値にする。必ずプレビューで確認すること。
+function detectDelimiter(text) {
+  const candidates = [",", "\t", ";"];
+  const totals = candidates.map(() => []);
+  let inQuotes = false, atCellStart = true, counts = [0, 0, 0], completed = 0;
+  for (let i = 0; i < text.length && i < 150000 && completed < 30; i++) {
+    const c = text[i];
+    if (c === '"') {
+      if (inQuotes && text[i + 1] === '"') { i++; continue; }
+      if (inQuotes) { inQuotes = false; continue; }
+      if (atCellStart) { inQuotes = true; continue; }
+    }
+    if (inQuotes) continue;
+    if (c === "\r" || c === "\n") {
+      totals.forEach((arr, n) => arr.push(counts[n]));
+      counts = [0, 0, 0]; atCellStart = true; completed++;
+      if (c === "\r" && text[i + 1] === "\n") i++;
+    } else {
+      const n = candidates.indexOf(c);
+      if (n >= 0) { counts[n]++; atCellStart = true; }
+      else if (c !== " " && c !== "\t") atCellStart = false;
+    }
+  }
+  if (counts.some(n => n > 0)) totals.forEach((arr, n) => arr.push(counts[n]));
+  let winner = 0, best = -1;
+  totals.forEach((arr, n) => {
+    const positive = arr.filter(v => v > 0);
+    if (!positive.length) return;
+    const frequencies = new Map();
+    positive.forEach(v => frequencies.set(v, (frequencies.get(v) || 0) + 1));
+    const mostFrequent = Math.max(...frequencies.values());
+    // 多くの行で安定して現れる区切り文字を優先する。
+    const score = mostFrequent * 10000 + positive.length * 100 + positive.reduce((a, b) => a + b, 0);
+    if (score > best) { best = score; winner = n; }
+  });
+  return candidates[winner];
 }
 
 // RFC 4180系の引用符・セル内改行を扱い、元の物理行番号を保持する。
@@ -177,7 +219,7 @@ function diagnose(rows, lineNumbers) {
   return { rows, header, dataRows, expected, mismatches, blankHeaders, duplicateHeaders, duplicateCount, emptyCount, blankColumnIndexes };
 }
 
-function renderReport(report, encoding, inferred) {
+function renderReport(report, encoding, inferred, delimiter) {
   ui.summary.replaceChildren();
   [["全行数（見出し含む）", report.rows.length], ["見出しの列数", report.expected], ["列数が異なる行", report.mismatches.length], ["重複行", report.duplicateCount]].forEach(([label, value]) => {
     const card = document.createElement("div"); card.className = "summary-card";
@@ -193,7 +235,8 @@ function renderReport(report, encoding, inferred) {
     report.duplicateCount ? ["warn", "重複行：" + report.duplicateCount + "件", "同じ値・同じ列数のデータ行が複数あります。任意で削除できます。"] : ["ok", "重複行なし", "完全一致するデータ行は見つかりませんでした。"],
     report.emptyCount ? ["warn", "空白だけの行：" + report.emptyCount + "行", "任意で削除できます。"] : ["ok", "空白だけの行なし", "空白だけのデータ行は見つかりませんでした。"],
     report.blankColumnIndexes.length ? ["warn", "全データ行で空の列：" + report.blankColumnIndexes.length + "列", "対象列：" + report.blankColumnIndexes.map(x => x + 1).join("、") + "。任意で削除できます。"] : ["ok", "全データ行で空の列なし", "データ行がある列では空でない値が確認できました。"],
-    ["info", "読み込み文字コード：" + (encoding === "shift_jis" ? "Shift_JIS系" : "UTF-8") + (inferred ? "（自動判定）" : "（指定）"), "自動判定は推定です。必ずプレビューで日本語を確認してください。"]
+    ["info", "読み込み文字コード：" + (encoding === "shift_jis" ? "Shift_JIS系" : "UTF-8") + (inferred ? "（自動判定）" : "（指定）"), "自動判定は推定です。必ずプレビューで日本語を確認してください。"],
+    ["info", "区切り文字：" + (delimiter === "\t" ? "タブ（TSV）" : delimiter === ";" ? "セミコロン" : "カンマ") + (ui.delimiter.value === "auto" ? "（自動判定）" : "（指定）"), "列の表示が不自然な場合は、読み込み時の区切り文字を切り替えて再診断してください。"]
   ];
   pairs.forEach(([kind, title, detail]) => {
     const item = document.createElement("div"); item.className = `check-item ${kind}`;
@@ -212,9 +255,34 @@ function renderReport(report, encoding, inferred) {
   });
 }
 
-function buildOutputRows(report) {
+// 選択列の書式: 「1,3-5」など。空欄は全列を意味する。
+function parseColumnSelection(input, width) {
+  const raw = input.trim();
+  if (!raw) return null;
+  if (!/^[0-9,\-\s]+$/.test(raw)) throw new Error("列番号は半角数字・カンマ・ハイフンで入力してください（例：1,3-5）。");
+  const picked = [];
+  const seen = new Set();
+  for (const chunk of raw.split(",")) {
+    const part = chunk.trim();
+    const match = part.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+    if (!match) throw new Error("列番号の指定が正しくありません（例：1,3-5）。");
+    const from = Number(match[1]);
+    const to = match[2] === undefined ? from : Number(match[2]);
+    if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to) || from < 1 || to < from || to > width) {
+      throw new Error(`列番号は1〜${width}の範囲で、小さい順に範囲指定してください。`);
+    }
+    // 同じ列を繰り返し指定した場合は、一度だけ出力。
+    for (let n = from; n <= to; n++) if (!seen.has(n)) { seen.add(n); picked.push(n - 1); }
+  }
+  if (!picked.length) throw new Error("出力する列を1つ以上指定してください。");
+  return picked;
+}
+
+// 見出しから左に1列目、2列目…と数える。抽出した場合は指定列だけを出力する。
+function buildOutputRows(report, selectionText = ui.columnSelection.value) {
   const opts = { trim: ui.trim.checked, duplicates: ui.duplicates.checked, emptyRows: ui.emptyRows.checked, emptyColumns: ui.emptyColumns.checked, headers: ui.headers.checked, padShort: ui.padShort.checked, safeFormulas: ui.safeFormulas.checked };
   const originalWidth = report.expected;
+  const selected = parseColumnSelection(selectionText, originalWidth);
   let rows = report.rows.map(row => row.map(cell => opts.trim ? cell.trim() : cell));
   const before = rows.length;
   if (opts.emptyRows) rows = [rows[0], ...rows.slice(1).filter(row => !row.every(cell => cell.trim() === ""))];
@@ -228,11 +296,12 @@ function buildOutputRows(report) {
     })];
   }
   if (opts.padShort) rows = rows.map(row => row.length >= originalWidth ? row : [...row, ...Array(originalWidth - row.length).fill("")]);
+  if (selected) rows = rows.map(row => selected.map(index => row[index] ?? ""));
+  const width = rows[0].length;
   if (opts.emptyColumns) {
-    const indexes = [...Array(originalWidth).keys()].filter(index => rows.slice(1).length > 0 && rows.slice(1).every(row => (row[index] || "").trim() === ""));
+    const indexes = [...Array(width).keys()].filter(index => rows.slice(1).length > 0 && rows.slice(1).every(row => (row[index] || "").trim() === ""));
     const blocked = new Set(indexes);
-    // 最後の列まですべて除去される事態は避ける。
-    if (indexes.length < originalWidth) rows = rows.map(row => row.filter((_, index) => !blocked.has(index)));
+    if (indexes.length < width) rows = rows.map(row => row.filter((_, index) => !blocked.has(index)));
   }
   if (opts.headers) {
     const used = new Set();
@@ -254,28 +323,41 @@ function shouldProtectFormula(cell) {
   return true;
 }
 function updateExportSummary() {
-  if (!activeData) { ui.exportSummary.textContent = ""; return; }
-  const { rows, removedRows, removedColumns } = buildOutputRows(activeData.report);
-  ui.exportSummary.textContent = `出力予定：${rows.length}行 × 見出し${rows[0].length}列 ｜ 削除される行：${removedRows} ｜ 削除される列：${removedColumns}`;
+  if (!activeData) { ui.exportSummary.textContent = ""; ui.download.disabled = true; return; }
+  try {
+    const { rows, removedRows, removedColumns } = buildOutputRows(activeData.report);
+    ui.exportSummary.textContent = `出力予定：${rows.length}行 × 見出し${rows[0].length}列 ｜ 削除される行：${removedRows} ｜ 出力しない列：${removedColumns} ｜ 形式：${ui.outputFormat.value.toUpperCase()}`;
+    ui.exportSummary.classList.remove("invalid");
+    ui.download.disabled = false;
+  } catch (error) {
+    ui.exportSummary.textContent = `列番号を確認してください：${error.message}`;
+    ui.exportSummary.classList.add("invalid");
+    ui.download.disabled = true;
+  }
 }
 function downloadCsv() {
-  if (!activeData) return;
-  const { rows } = buildOutputRows(activeData.report);
-  const lines = rows.map(row => row.map(escapeCsvCell).join(",")).join("\r\n");
+  if (!activeData || ui.download.disabled) return;
+  let rows;
+  try { ({ rows } = buildOutputRows(activeData.report)); }
+  catch (error) { showError(error.message); return; }
+  const sep = ui.outputFormat.value === "tsv" ? "\t" : ",";
+  const lines = rows.map(row => row.map(cell => escapeDelimitedCell(cell, sep)).join(sep)).join("\r\n");
   const bom = ui.outputEncoding.value === "utf-8-bom" ? "\uFEFF" : "";
-  const blob = new Blob([bom, lines], { type: "text/csv;charset=utf-8" });
+  const type = ui.outputFormat.value === "tsv" ? "text/tab-separated-values;charset=utf-8" : "text/csv;charset=utf-8";
+  const blob = new Blob([bom, lines], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   const baseName = (activeData.file.name || "data.csv").replace(/\.[^.]+$/, "");
-  a.download = `${baseName}_整理済み.csv`;
+  a.download = `${baseName}_整理済み.${ui.outputFormat.value}`;
   document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-function escapeCsvCell(value) {
+function escapeDelimitedCell(value, separator) {
   const s = String(value ?? "");
-  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  return s.includes(separator) || /["\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
+function escapeCsvCell(value) { return escapeDelimitedCell(value, ","); }
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -284,4 +366,4 @@ function formatBytes(bytes) {
 function showError(message) { ui.error.textContent = message; }
 
 // ブラウザ・Nodeでテストしやすいようにロジックだけを公開する（画面からの動作には影響しない）。
-if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, diagnose, decodeCsv, escapeCsvCell, shouldProtectFormula };
+if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, diagnose, decodeCsv, detectDelimiter, parseColumnSelection, escapeCsvCell, escapeDelimitedCell, shouldProtectFormula, buildOutputRows };

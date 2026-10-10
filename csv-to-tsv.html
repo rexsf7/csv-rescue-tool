@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="CSVをTSVへ、TSVをCSVへ無料で変換する手順。区切り文字の違い、Excelでの文字化け対策、注意点も解説。"><title>CSVをTSVに変換する方法・TSVをCSVに戻す方法｜CSVレスキュー</title><link rel="canonical" href="https://csv-rescue-tool.pages.dev/csv-to-tsv.html"><link rel="stylesheet" href="style.css"></head>
+<body><header class="site-header"><div class="wrap header-inner"><a class="brand" href="./"><span class="brand-mark">CSV</span><span>レスキュー</span></a><span class="privacy-pill">ブラウザ内で処理</span></div></header><main class="wrap article-main"><div class="breadcrumb"><a href="./">ホーム</a> › CSV・TSV変換</div><section class="hero"><p class="eyebrow">CSV GUIDE 04</p><h1>CSVとTSVを相互変換する方法</h1><p class="hero-copy">カンマ区切りとタブ区切りのデータを、無料で相互変換する手順と注意点をまとめました。</p></section><article class="panel article-body">
+<h2>CSVとTSVの違い</h2>
+<p>CSVは一般にカンマ（<code>,</code>）で列を区切るテキスト形式、TSVはタブで区切る形式です。どちらも表データを扱えます。区切り文字がセルの中にある場合は、ダブルクォートによる囲み方にも注意が必要です。</p>
+<h2>CSVをTSVに変換する手順</h2>
+<ol><li><a href="./">CSVレスキューのトップページ</a>でCSVファイルを選択します。</li><li>区切り文字は「自動判定（推定）」か「カンマ」にして診断します。</li><li>列数とプレビューを確認し、「出力するファイル形式」から「TSV（タブ区切り）」を選びます。</li><li>「CSVをダウンロード」を押します。拡張子が <code>.tsv</code> のファイルを保存できます。</li></ol>
+<h2>TSVをCSVに変換する手順</h2>
+<ol><li>拡張子 <code>.tsv</code> のファイルを選択します。</li><li>区切り文字が正しくタブになっているか、診断結果を確認します。</li><li>「出力するファイル形式」を「CSV（カンマ区切り）」にして保存します。</li></ol>
+<h2>よくある注意点</h2>
+<ul><li><strong>ファイル名だけの変更では変換されません。</strong> 拡張子を変えるだけでは列の区切り方は変わりません。</li><li><strong>CSVのカンマを単純にタブに置換しないこと。</strong> セルの中のカンマや改行、引用符を壊すことがあります。</li><li><strong>Excelで日本語が文字化けする場合：</strong> UTF-8（BOM付き・Excel向け）での保存や、Excel側のテキスト取り込みを試してください。</li><li><strong>列数が違う行がある場合：</strong> 変換しても意味上の列ズレは自動で直りません。</li></ul>
+<h2>変換例</h2><p>CSV入力例：</p><pre><code>名前,部署
+山田太郎,営業
+佐藤花子,開発</code></pre><p>TSV出力では、カンマの代わりにタブ文字で区切られます。画面上では空白に見える場合があるので、取り込み時には区切り形式を指定してください。</p>
+<p class="article-note">このツールは元ファイルを書き換えません。ダウンロードした結果を開き、文字化けや列の欠落がないか確認してください。</p><p><a href="./">無料CSVツールを開く →</a></p><p>関連：<a href="csv-mojibake.html">CSV文字化けの対処</a> ／ <a href="csv-columns.html">列ズレの原因</a> ／ <a href="csv-duplicates.html">重複行の整理</a></p></article><nav class="legal-links"><a href="privacy.html">プライバシーポリシー</a><a href="about.html">このサイトについて</a><a href="contact.html">お問い合わせ</a></nav></main><footer class="site-footer"><div class="wrap footer-inner"><span>© CSVレスキュー</span></div></footer></body></html>
