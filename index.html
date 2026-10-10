@@ -27,8 +27,8 @@
     <section class="hero">
       <p class="eyebrow">FREE CSV TOOL · 登録不要</p>
       <h1>CSVの文字化け・重複・列ズレを<br class="desktop-break">無料でチェック。</h1>
-      <p class="hero-copy">CSVを読み込んで列数の不一致や重複行を診断。UTF-8・Shift_JISでの保存、メールやIDを基準にした重複削除、CSV⇔TSV変換、列抽出までブラウザで完結します。</p>
-      <div class="hero-tags"><span>UTF-8 ⇔ Shift_JIS</span><span>CSV ⇔ TSV</span><span>列の抽出</span><span>指定列で重複削除</span><span>Excel向けBOM付き</span><span>ファイル送信なし</span><span>インストール不要</span></div>
+      <p class="hero-copy">CSVを読み込んで列数の不一致や重複行を診断。UTF-8・Shift_JISでの保存、メールやIDを基準にした重複削除、CSV⇔TSV変換、列抽出までブラウザで完結します。2つのCSVの差分比較も無料で利用できます。</p>
+      <div class="hero-tags"><span>CSV差分比較</span><span>UTF-8 ⇔ Shift_JIS</span><span>CSV ⇔ TSV</span><span>列の抽出</span><span>指定列で重複削除</span><span>Excel向けBOM付き</span><span>ファイル送信なし</span><span>インストール不要</span></div>
     </section>
 
     <section class="panel upload-panel" aria-labelledby="upload-title">
@@ -107,6 +107,13 @@
       </section>
     </section>
 
+    <section class="panel compare-promo" aria-labelledby="compare-promo-title">
+      <div class="section-heading"><div><p class="step-label">NEW · CSV DIFF TOOL</p><h2 id="compare-promo-title">2つのCSVファイルを比較する</h2></div><span class="file-badge">v6</span></div>
+      <p class="hero-copy">変更前・変更後のCSVを比較して、追加・削除された行を確認。ID列を指定すると、同じIDの値が変更された行も見つけられます。</p>
+      <p><a class="button primary" href="csv-compare.html" style="display:inline-block;text-decoration:none">無料のCSV差分比較ツールを開く →</a></p>
+      <p class="hint">2つのCSVをブラウザ内で比較します。ファイル内容をサーバーに送信しません。</p>
+    </section>
+
     <section class="section-guides" aria-labelledby="guides-title">
       <div class="section-heading"><div><p class="step-label">HOW TO</p><h2 id="guides-title">よくあるCSVのトラブルと対処法</h2></div></div>
       <div class="guide-grid">
@@ -117,6 +124,7 @@
         <article class="panel guide-card"><p class="step-label">GUIDE 05</p><h3>CSVから必要な列だけ取り出す</h3><p>列番号を指定してデータを抽出。列の順番も変更できます。</p><a href="csv-extract-columns.html">列の抽出方法を見る →</a></article>
         <article class="panel guide-card"><p class="step-label">GUIDE 06</p><h3>指定列を基準に重複行を削除する</h3><p>メールアドレスや顧客IDをキーにして、最初か最後の行だけを残す方法。</p><a href="csv-dedupe-by-column.html">指定列での重複削除手順 →</a></article>
         <article class="panel guide-card"><p class="step-label">GUIDE 07</p><h3>CSVをShift_JISで保存する</h3><p>UTF-8からWindows-31Jへの変換方法。変換できない文字の確認と、文字化けを防ぐ注意点。</p><a href="csv-to-shift-jis.html">Shift_JIS変換の手順 →</a></article>
+        <article class="panel guide-card"><p class="step-label">GUIDE 08</p><h3>2つのCSVファイルの差分を比較する</h3><p>追加・削除された行、IDなどを基準に変更された行を検出。比較結果をCSVで保存できます。</p><a href="csv-compare.html">CSV差分比較ツールを使う →</a></article>
       </div>
     </section>
 
@@ -129,6 +137,7 @@
       <details><summary>CSVからTSVに変換できますか？</summary><p>はい。「出力するファイル形式」で「TSV（タブ区切り）」を選んで保存できます。TSVからCSVへの変換にも対応しています。</p></details>
       <details><summary>メールアドレスやIDだけで重複削除できますか？</summary><p>はい。「重複したデータ行を削除する」にチェックし、「指定した列の値が一致」を選んで列番号を指定してください。どの行を残すかも選択できます。指定列がすべて空欄の行は削除しません。別人・別取引が同じキーを持つ場合もあるので、結果を確認してください。</p></details>
       <details><summary>必要な列だけ取り出せますか？</summary><p>はい。診断後の「抽出したい列番号」に「1,3」などを入力すると1列目と3列目だけを出力できます。順番の指定も可能です。データの欠落を避けるため、出力結果を必ず確認してください。</p></details>
+      <details><summary>2つのCSVを比較できますか？</summary><p>はい。<a href="csv-compare.html">CSV差分比較ツール</a>で、追加・削除・変更された行を確認できます。ID列を指定する場合は、キーの重複や空欄がないファイルを使用してください。</p></details>
       <details><summary>データが消えてしまうことはありますか？</summary><p>元ファイル自体は書き換えません。ただし、削除・補正の項目を選んで出力すると結果のCSVの内容が変わります。元ファイルを保管し、出力後に内容を確認してください。</p></details>
     </section>
     <nav class="legal-links" aria-label="サイト情報"><a href="privacy.html">プライバシーポリシー</a><a href="about.html">このサイトについて</a><a href="contact.html">お問い合わせ</a></nav>

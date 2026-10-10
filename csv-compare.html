@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="2つのCSVファイルを無料で差分比較。追加・削除された行を検出し、ID列を指定すると変更された行も確認できます。CSV・TSV、UTF-8・Shift_JIS対応。ファイルは送信しません。">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="CSV差分比較ツール｜追加・削除・変更行を確認｜CSVレスキュー">
+  <meta property="og:description" content="変更前と変更後のCSVをブラウザ内で比較。追加・削除・変更を一覧表示して差分CSVを保存。">
+  <meta property="og:url" content="https://csv-rescue-tool.pages.dev/csv-compare.html">
+  <link rel="canonical" href="https://csv-rescue-tool.pages.dev/csv-compare.html">
+  <!-- 既存のAdSenseパブリッシャーIDを使用。広告の表示は審査後にGoogleが判断します。 -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9713647473376060" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="style.css">
+  <title>CSV差分比較ツール｜2つのCSVの追加・削除・変更を無料で確認｜CSVレスキュー</title>
+</head>
+<body>
+  <a href="#main" class="skip-link">本文へ移動</a>
+  <header class="site-header"><div class="wrap header-inner"><a class="brand" href="./"><span class="brand-mark">CSV</span><span>レスキュー</span></a><span class="privacy-pill">ファイル送信なし・ブラウザ内で比較</span></div></header>
+  <main class="wrap compare-main" id="main">
+    <div class="breadcrumb"><a href="./">ホーム</a> › CSV差分比較</div>
+    <section class="hero compare-hero">
+      <p class="eyebrow">CSV DIFF · FREE TOOL</p>
+      <h1>2つのCSVファイルを比較して、<br class="desktop-break">追加・削除・変更を見つける。</h1>
+      <p class="hero-copy">変更前と変更後のCSVを指定して差分を確認。行全体の比較だけでなく、IDなどのキー列を指定すれば「同じ行の内容が変わった」ことも判定できます。登録不要・無料です。</p>
+      <div class="hero-tags"><span>CSV / TSV</span><span>UTF-8 / Shift_JIS</span><span>キー列で変更検出</span><span>差分CSVを保存</span><span>20MB / ファイル</span><span>データ送信なし</span></div>
+    </section>
+
+    <section class="panel compare-panel" aria-labelledby="compare-upload-title">
+      <div class="section-heading"><div><p class="step-label">STEP 1</p><h2 id="compare-upload-title">比較する2つのファイルを選択</h2></div><span class="file-badge">CSV / TSV</span></div>
+      <div class="compare-files">
+        <div class="compare-file-box">
+          <h3><span class="compare-file-index">A</span> 変更前のCSV</h3>
+          <label for="before-file">変更前のファイルを選ぶ</label>
+          <input type="file" id="before-file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values">
+          <p id="before-info" class="hint" aria-live="polite">選択されていません</p>
+          <div class="compare-file-options">
+            <div class="field"><label for="before-encoding">文字コード</label><select id="before-encoding"><option value="auto">自動判定（推定）</option><option value="utf-8">UTF-8</option><option value="shift_jis">Shift_JIS / Windows-31J</option></select></div>
+            <div class="field"><label for="before-delimiter">区切り文字</label><select id="before-delimiter"><option value="auto">自動判定（推定）</option><option value=",">カンマ</option><option value="tab">タブ（TSV）</option><option value=";">セミコロン</option></select></div>
+          </div>
+        </div>
+        <div class="compare-file-box">
+          <h3><span class="compare-file-index after">B</span> 変更後のCSV</h3>
+          <label for="after-file">変更後のファイルを選ぶ</label>
+          <input type="file" id="after-file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values">
+          <p id="after-info" class="hint" aria-live="polite">選択されていません</p>
+          <div class="compare-file-options">
+            <div class="field"><label for="after-encoding">文字コード</label><select id="after-encoding"><option value="auto">自動判定（推定）</option><option value="utf-8">UTF-8</option><option value="shift_jis">Shift_JIS / Windows-31J</option></select></div>
+            <div class="field"><label for="after-delimiter">区切り文字</label><select id="after-delimiter"><option value="auto">自動判定（推定）</option><option value=",">カンマ</option><option value="tab">タブ（TSV）</option><option value=";">セミコロン</option></select></div>
+          </div>
+        </div>
+      </div>
+      <p class="hint compare-sample-links">試すためのファイル：<a href="sample-before.csv" download>変更前のサンプルCSV</a> ／ <a href="sample-after.csv" download>変更後のサンプルCSV</a></p>
+      <div class="compare-mode panel" aria-labelledby="compare-mode-title">
+        <h3 id="compare-mode-title">比較方法を選ぶ</h3>
+        <label class="compare-radio"><input type="radio" name="compare-mode" value="key" checked><span><strong>キー列（IDなど）で比較</strong><small>同じIDの行の内容を比べ、追加・削除・変更を判定。キー列は両ファイルで重複・空欄がない必要があります。</small></span></label>
+        <div id="key-settings" class="field compare-key-field"><label for="key-column">キー列の番号（左から数えて1列目なら「1」）</label><input id="key-column" type="number" min="1" step="1" value="1" inputmode="numeric"><span class="hint">例：見出しが「ID,名前,部署」なら「1」。行全体では一致しない変更も検出できます。</span></div>
+        <label class="compare-radio"><input type="radio" name="compare-mode" value="whole"><span><strong>行全体が一致するか比較</strong><small>行の並び順は無視し、完全一致する行の数を比較。変更された行は「削除」と「追加」に分かれます。</small></span></label>
+      </div>
+      <p class="hint">ファイルは各20MBまで。見出しと列順は2つのファイルで一致させてください。最大10万データ行／ファイル。元ファイルは変更されません。</p>
+      <button class="button primary compare-go" id="compare-btn" disabled>2つのCSVを比較する</button>
+      <p class="error" role="alert" id="compare-error" aria-live="assertive"></p>
+    </section>
+
+    <section class="results hidden" id="compare-results" aria-labelledby="compare-results-title">
+      <div class="section-heading results-heading"><div><p class="step-label">STEP 2</p><h2 id="compare-results-title">比較結果</h2></div><span class="status-pill" id="compare-status">比較完了</span></div>
+      <div class="summary-grid" id="compare-summary" aria-live="polite"></div>
+      <div class="panel result-panel">
+        <h3>差分のプレビュー</h3>
+        <p class="hint before-table" id="compare-description">差分の先頭50件を表示します。ダウンロードにはすべての差分が含まれます。</p>
+        <div class="table-wrap"><table id="compare-table"><thead><tr><th>状態</th><th>キー</th><th>変更列</th><th>変更前</th><th>変更後</th></tr></thead><tbody id="compare-tbody"></tbody></table></div>
+        <p class="hint">旧・新データはプレビュー用に短く表示します。ダウンロードしたレポートには全文を保存します。</p>
+      </div>
+      <div class="panel result-panel">
+        <h3>差分レポートを保存</h3>
+        <p class="hint before-table">「状態」「キー」「変更した列」と、各列の変更前・変更後の値をCSV形式で保存できます。Excelで開きやすいBOM付きUTF-8です。</p>
+        <button class="button primary" id="compare-download" disabled>差分CSVをダウンロード</button>
+        <p class="hint">安全のため、レポート内で数式として解釈され得る値は先頭に「'」を付けます。元のCSVは書き換えません。</p>
+      </div>
+    </section>
+
+    <section class="panel article-body compare-guide" aria-label="CSV差分比較の説明">
+      <h2>CSVの差分比較で分かること</h2>
+      <p>CSVファイルの更新前と更新後を比べると、データの追加・削除や、同じレコードの値の変更を確認できます。名簿、商品一覧、在庫マスターなど、定期的に更新されるファイルの確認に便利です。</p>
+      <h2>「キー列で比較」と「行全体を比較」の違い</h2>
+      <p>「キー列で比較」は、例えば顧客IDが同じなら同一人物とみなして、メールアドレスや部署の変更を検出します。ID列には、両ファイルで重複せず空欄のない値が必要です。IDそのものが変わった場合は、同じ行とは判断できず「削除」と「追加」になります。</p>
+      <p>「行全体を比較」は、各行のすべての値が同じかを判定します。同じ内容の行が複数ある場合は、その件数も考慮します。行順だけの違いは差分に含めず、内容が変わった行は「削除」と「追加」として数えます。</p>
+      <h2>比較ができないときの確認ポイント</h2>
+      <ul>
+        <li><strong>文字化け：</strong>ファイルごとにUTF-8またはShift_JISを指定して再実行してください。</li>
+        <li><strong>見出しが一致しない：</strong>列名と並び順を同じにしてください。異なる列を無理に比較しません。</li>
+        <li><strong>キーが重複・空欄：</strong>一意のID列を指定するか、「行全体が一致するか比較」を使ってください。</li>
+        <li><strong>列数の不一致：</strong>先に<a href="./">CSV診断ツール</a>で列ズレを確認してください。</li>
+      </ul>
+      <h2>利用前の注意</h2>
+      <p>比較は値の文字列が完全に一致するかを基準にしています。空白や大文字・小文字の違いも差分になります。行の移動は変更として扱いません。レポートを開く前に内容を確認し、重要な元ファイルは必ず保管してください。</p>
+      <p>ファイルの読み込みと比較処理は利用者のブラウザ内で完結し、CSVの中身をサイト運営者へアップロードする機能はありません。ブラウザや端末のメモリ状況により大きなCSVの比較に時間がかかることがあります。</p>
+      <p><a href="./">CSVの文字化け・重複・列抽出ツールに戻る →</a></p>
+    </section>
+    <nav class="legal-links" aria-label="サイト情報"><a href="privacy.html">プライバシーポリシー</a><a href="about.html">このサイトについて</a><a href="contact.html">お問い合わせ</a></nav>
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><span>© CSVレスキュー</span><span>2つのCSVはブラウザ内で比較します。</span></div></footer>
+  <script src="compare-core.js" defer></script>
+  <script src="compare-ui.js" defer></script>
+</body>
+</html>
