@@ -9,6 +9,9 @@ const ui = {
   exportSummary: $("export-summary"), download: $("download-btn"),
   outputEncoding: $("output-encoding"), outputFormat: $("output-format"),
   columnSelection: $("column-selection"),
+  dedupeMode: $("dedupe-mode"), dedupeColumns: $("dedupe-columns"),
+  dedupeKeep: $("dedupe-keep"), dedupeOptions: $("dedupe-options"),
+  dedupeColumnField: $("dedupe-column-field"), dedupePreview: $("dedupe-preview"),
   trim: $("trim-cells"), duplicates: $("remove-duplicates"), emptyRows: $("remove-empty-rows"),
   emptyColumns: $("remove-empty-columns"), headers: $("fix-headers"),
   padShort: $("pad-short-rows"), safeFormulas: $("safe-formulas")
@@ -28,8 +31,18 @@ ui.dropZone.addEventListener("drop", event => {
 });
 ui.analyze.addEventListener("click", analyzeFile);
 ui.download.addEventListener("click", downloadCsv);
-[ui.outputEncoding, ui.outputFormat, ui.trim, ui.duplicates, ui.emptyRows, ui.emptyColumns, ui.headers, ui.padShort, ui.safeFormulas].forEach(el => el.addEventListener("change", updateExportSummary));
+[ui.outputEncoding, ui.outputFormat, ui.trim, ui.duplicates, ui.emptyRows, ui.emptyColumns, ui.headers, ui.padShort, ui.safeFormulas, ui.dedupeMode, ui.dedupeKeep].forEach(el => el.addEventListener("change", updateExportSummary));
 ui.columnSelection.addEventListener("input", updateExportSummary);
+ui.dedupeColumns.addEventListener("input", updateExportSummary);
+function updateDedupeControls() {
+  ui.dedupeOptions.classList.toggle("is-inactive", !ui.duplicates.checked);
+  ui.dedupeColumnField.classList.toggle("hidden", ui.dedupeMode.value !== "columns");
+  ui.dedupeColumns.disabled = !ui.duplicates.checked || ui.dedupeMode.value !== "columns";
+  ui.dedupeMode.disabled = !ui.duplicates.checked;
+  ui.dedupeKeep.disabled = !ui.duplicates.checked;
+  ui.dedupePreview.textContent = !ui.duplicates.checked ? "重複削除はオフです。元のデータ行を残します。" : "";
+}
+updateDedupeControls();
 
 function setFile(file) {
   taskNumber += 1;
@@ -75,6 +88,10 @@ async function analyzeFile() {
     if (myTask !== taskNumber) return;
     activeData = { file, report, encoding, inferred, delimiter };
     ui.columnSelection.value = "";
+    ui.dedupeColumns.value = "";
+    ui.dedupeMode.value = "all";
+    ui.dedupeKeep.value = "first";
+    ui.duplicates.checked = false;
     renderReport(report, encoding, inferred, delimiter);
     updateExportSummary();
     ui.results.classList.remove("hidden");
@@ -279,21 +296,60 @@ function parseColumnSelection(input, width) {
 }
 
 // 見出しから左に1列目、2列目…と数える。抽出した場合は指定列だけを出力する。
+// 指定列がすべて空欄の場合は、キーの欠落による誤削除を防ぐため必ず残す。
+// 通常の行全体一致は、列数が異なる行を別物として扱う。
+function deduplicateRows(dataRows, mode = "all", keyIndexes = null, keep = "first") {
+  if (mode !== "all" && mode !== "columns") throw new Error("重複の判定方法を選び直してください。");
+  if (keep !== "first" && keep !== "last") throw new Error("残す行の指定を確認してください。");
+  if (mode === "columns" && (!Array.isArray(keyIndexes) || !keyIndexes.length)) {
+    throw new Error("重複判定に使う列番号を1つ以上入力してください（例：3 または 1,3）。");
+  }
+  const seen = new Set();
+  const keepFlags = Array(dataRows.length).fill(false);
+  const indexes = [...Array(dataRows.length).keys()];
+  if (keep === "last") indexes.reverse();
+  let duplicateRemoved = 0, blankKeysPreserved = 0;
+  for (const i of indexes) {
+    const row = dataRows[i];
+    const cells = mode === "columns" ? keyIndexes.map(index => row[index] ?? "") : row;
+    if (mode === "columns" && cells.every(cell => String(cell).trim() === "")) {
+      keepFlags[i] = true;
+      blankKeysPreserved++;
+      continue;
+    }
+    const key = JSON.stringify(cells);
+    if (seen.has(key)) { duplicateRemoved++; continue; }
+    seen.add(key);
+    keepFlags[i] = true;
+  }
+  return {
+    rows: dataRows.filter((row, i) => keepFlags[i]),
+    duplicateRemoved,
+    blankKeysPreserved
+  };
+}
+
+// 出力列抽出より前に重複を判定するため、元の列番号がそのまま使える。
 function buildOutputRows(report, selectionText = ui.columnSelection.value) {
   const opts = { trim: ui.trim.checked, duplicates: ui.duplicates.checked, emptyRows: ui.emptyRows.checked, emptyColumns: ui.emptyColumns.checked, headers: ui.headers.checked, padShort: ui.padShort.checked, safeFormulas: ui.safeFormulas.checked };
   const originalWidth = report.expected;
   const selected = parseColumnSelection(selectionText, originalWidth);
+  let keyIndexes = null;
+  if (opts.duplicates && ui.dedupeMode.value === "columns") {
+    keyIndexes = parseColumnSelection(ui.dedupeColumns.value, originalWidth);
+    if (!keyIndexes) throw new Error("重複判定に使う列番号を1つ以上入力してください（例：3 または 1,3）。");
+  }
   let rows = report.rows.map(row => row.map(cell => opts.trim ? cell.trim() : cell));
   const before = rows.length;
+  const dataBefore = rows.length - 1;
   if (opts.emptyRows) rows = [rows[0], ...rows.slice(1).filter(row => !row.every(cell => cell.trim() === ""))];
+  const emptyRowsRemoved = dataBefore - (rows.length - 1);
+  let duplicateRemoved = 0, blankKeysPreserved = 0;
   if (opts.duplicates) {
-    const used = new Set();
-    rows = [rows[0], ...rows.slice(1).filter(row => {
-      const key = JSON.stringify(row);
-      if (used.has(key)) return false;
-      used.add(key);
-      return true;
-    })];
+    const result = deduplicateRows(rows.slice(1), ui.dedupeMode.value, keyIndexes, ui.dedupeKeep.value);
+    rows = [rows[0], ...result.rows];
+    duplicateRemoved = result.duplicateRemoved;
+    blankKeysPreserved = result.blankKeysPreserved;
   }
   if (opts.padShort) rows = rows.map(row => row.length >= originalWidth ? row : [...row, ...Array(originalWidth - row.length).fill("")]);
   if (selected) rows = rows.map(row => selected.map(index => row[index] ?? ""));
@@ -314,7 +370,7 @@ function buildOutputRows(report, selectionText = ui.columnSelection.value) {
     });
   }
   if (opts.safeFormulas) rows = rows.map(row => row.map(cell => shouldProtectFormula(cell) ? "'" + cell : cell));
-  return { rows, removedRows: before - rows.length, removedColumns: originalWidth - rows[0].length };
+  return { rows, removedRows: before - rows.length, removedColumns: originalWidth - rows[0].length, duplicateRemoved, blankKeysPreserved, emptyRowsRemoved };
 }
 function shouldProtectFormula(cell) {
   if (!/^[\s\u0000-\u001f]*[=+@-]/.test(cell)) return false;
@@ -323,15 +379,20 @@ function shouldProtectFormula(cell) {
   return true;
 }
 function updateExportSummary() {
+  updateDedupeControls();
   if (!activeData) { ui.exportSummary.textContent = ""; ui.download.disabled = true; return; }
   try {
-    const { rows, removedRows, removedColumns } = buildOutputRows(activeData.report);
-    ui.exportSummary.textContent = `出力予定：${rows.length}行 × 見出し${rows[0].length}列 ｜ 削除される行：${removedRows} ｜ 出力しない列：${removedColumns} ｜ 形式：${ui.outputFormat.value.toUpperCase()}`;
+    const { rows, removedRows, removedColumns, duplicateRemoved, blankKeysPreserved } = buildOutputRows(activeData.report);
+    ui.exportSummary.textContent = `出力予定：${rows.length}行 × 見出し${rows[0].length}列 ｜ 削除される行：${removedRows}（重複：${duplicateRemoved}） ｜ 出力しない列：${removedColumns} ｜ 形式：${ui.outputFormat.value.toUpperCase()}`;
     ui.exportSummary.classList.remove("invalid");
+    if (ui.duplicates.checked) {
+      ui.dedupePreview.textContent = `重複として削除予定：${duplicateRemoved}行` + (ui.dedupeMode.value === "columns" ? ` ｜ 判定列がすべて空欄で残す行：${blankKeysPreserved}行` : "") + "。出力ファイルで必ず内容を確認してください。";
+    }
     ui.download.disabled = false;
   } catch (error) {
-    ui.exportSummary.textContent = `列番号を確認してください：${error.message}`;
+    ui.exportSummary.textContent = `入力を確認してください：${error.message}`;
     ui.exportSummary.classList.add("invalid");
+    ui.dedupePreview.textContent = ui.duplicates.checked ? error.message : "";
     ui.download.disabled = true;
   }
 }
@@ -366,4 +427,4 @@ function formatBytes(bytes) {
 function showError(message) { ui.error.textContent = message; }
 
 // ブラウザ・Nodeでテストしやすいようにロジックだけを公開する（画面からの動作には影響しない）。
-if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, diagnose, decodeCsv, detectDelimiter, parseColumnSelection, escapeCsvCell, escapeDelimitedCell, shouldProtectFormula, buildOutputRows };
+if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, diagnose, decodeCsv, detectDelimiter, parseColumnSelection, escapeCsvCell, escapeDelimitedCell, shouldProtectFormula, deduplicateRows, buildOutputRows };

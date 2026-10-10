@@ -9,3 +9,15 @@
 .column-extract-field .hint{margin:0}
 .export-summary.invalid{background:#fff1f1;color:#9e2b26;border-color:#eab1aa}
 @media(min-width:761px){.guide-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* v4: 重複判定列と残す行の選択 */
+.dedupe-control{grid-column:1/-1;border:1px solid #cdd9ee;border-radius:12px;background:#f8fbff;padding:17px;display:grid;gap:13px}
+.dedupe-enable{font-weight:800;font-size:15px;color:#263c66}
+.dedupe-options{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;align-items:start}
+.dedupe-options .column-extract-field{grid-column:1/-1;max-width:570px}
+.dedupe-options .hint,.dedupe-preview{grid-column:1/-1;margin:0;font-size:12px;line-height:1.6}
+.dedupe-preview{font-weight:750;color:#294b80}
+.dedupe-options.is-inactive{opacity:.57}
+.dedupe-options select{width:100%}
+.dedupe-options input[type=text]{width:100%;min-height:45px;font:inherit;font-size:14px;border:1px solid #b9c8db;border-radius:9px;padding:9px 12px;color:var(--ink)}
+@media(max-width:760px){.dedupe-options{grid-template-columns:1fr}.dedupe-control{padding:14px}}
