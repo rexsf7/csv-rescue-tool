@@ -21,3 +21,11 @@
 .dedupe-options select{width:100%}
 .dedupe-options input[type=text]{width:100%;min-height:45px;font:inherit;font-size:14px;border:1px solid #b9c8db;border-radius:9px;padding:9px 12px;color:var(--ink)}
 @media(max-width:760px){.dedupe-options{grid-template-columns:1fr}.dedupe-control{padding:14px}}
+
+/* v5: Shift_JIS / Windows-31J出力の安全確認 */
+.sjis-options{grid-column:1/-1;border:1px solid #cdd9ee;border-radius:12px;background:#f8fbff;padding:16px;display:grid;gap:10px}
+.sjis-options>.hint{margin:0}
+.encoding-warning{margin:0;padding:11px 13px;border-radius:9px;background:#eaf7f0;color:#17613e;border:1px solid #c8e5d5;font-size:13px;line-height:1.65;font-weight:700;overflow-wrap:anywhere}
+.encoding-warning:empty{display:none}
+.encoding-warning.has-unmappable{background:#fff5e7;color:#814c0b;border-color:#efcf9b}
+.sjis-options .checkbox-line{font-weight:700}

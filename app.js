@@ -8,6 +8,7 @@ const ui = {
   checks: $("checks"), preview: $("preview"), status: $("status-pill"),
   exportSummary: $("export-summary"), download: $("download-btn"),
   outputEncoding: $("output-encoding"), outputFormat: $("output-format"),
+  sjisOptions: $("sjis-options"), sjisWarning: $("sjis-warning"), replaceUnmappable: $("replace-unmappable"),
   columnSelection: $("column-selection"),
   dedupeMode: $("dedupe-mode"), dedupeColumns: $("dedupe-columns"),
   dedupeKeep: $("dedupe-keep"), dedupeOptions: $("dedupe-options"),
@@ -31,7 +32,11 @@ ui.dropZone.addEventListener("drop", event => {
 });
 ui.analyze.addEventListener("click", analyzeFile);
 ui.download.addEventListener("click", downloadCsv);
-[ui.outputEncoding, ui.outputFormat, ui.trim, ui.duplicates, ui.emptyRows, ui.emptyColumns, ui.headers, ui.padShort, ui.safeFormulas, ui.dedupeMode, ui.dedupeKeep].forEach(el => el.addEventListener("change", updateExportSummary));
+[ui.outputFormat, ui.trim, ui.duplicates, ui.emptyRows, ui.emptyColumns, ui.headers, ui.padShort, ui.safeFormulas, ui.dedupeMode, ui.dedupeKeep, ui.replaceUnmappable].forEach(el => el.addEventListener("change", updateExportSummary));
+ui.outputEncoding.addEventListener("change", () => {
+  if (ui.outputEncoding.value !== "shift_jis") ui.replaceUnmappable.checked = false;
+  updateExportSummary();
+});
 ui.columnSelection.addEventListener("input", updateExportSummary);
 ui.dedupeColumns.addEventListener("input", updateExportSummary);
 function updateDedupeControls() {
@@ -378,15 +383,98 @@ function shouldProtectFormula(cell) {
   if (/^[+-](?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(cell.trim())) return false;
   return true;
 }
+// v5: Windows-31J (通称Shift_JIS/CP932) の厳密な出力。
+// TextEncoderはUTF-8のみなので、ブラウザのShift_JISデコーダの対応表から
+// 「変換してから読み直すと同じ文字に戻る」バイト列だけの逆引き表を作ります。
+// 外部CDNを使わず、CSV内容もサーバーへ送信しません。
+let cp932EncoderMap = null;
+function getCp932EncoderMap() {
+  if (cp932EncoderMap) return cp932EncoderMap;
+  const decoder = new TextDecoder("shift_jis", { fatal: true, ignoreBOM: true });
+  const mapping = new Map();
+  function register(a, b = null) {
+    const bytes = b === null ? [a] : [a, b];
+    try {
+      const decoded = decoder.decode(new Uint8Array(bytes));
+      // U+FFFDや複数文字になるもの、非対応コードは登録しない。
+      if ([...decoded].length === 1 && decoded !== "\uFFFD" && !mapping.has(decoded)) {
+        mapping.set(decoded, bytes);
+      }
+    } catch { /* 不正なバイト列は登録しない */ }
+  }
+  for (let value = 0; value <= 0x7f; value++) register(value);
+  for (let value = 0xa1; value <= 0xdf; value++) register(value);
+  for (let lead = 0x81; lead <= 0xfc; lead++) {
+    if (!((lead >= 0x81 && lead <= 0x9f) || lead >= 0xe0)) continue;
+    for (let trail = 0x40; trail <= 0xfc; trail++) {
+      if (trail === 0x7f) continue;
+      register(lead, trail);
+    }
+  }
+  cp932EncoderMap = mapping;
+  return mapping;
+}
+function getUnmappableCharacters(rows, limit = 6) {
+  const mapping = getCp932EncoderMap();
+  let count = 0;
+  const examples = [];
+  const exampleSet = new Set();
+  for (let r = 0; r < rows.length; r++) {
+    for (let c = 0; c < rows[r].length; c++) {
+      for (const ch of String(rows[r][c])) {
+        if (mapping.has(ch)) continue;
+        count++;
+        if (examples.length < limit && !exampleSet.has(ch)) {
+          examples.push({ char: ch, row: r + 1, column: c + 1 });
+          exampleSet.add(ch);
+        }
+      }
+    }
+  }
+  return { count, examples };
+}
+function encodeCp932Strict(text, replaceUnsupported = false) {
+  const mapping = getCp932EncoderMap();
+  // UTF-16の長さ×2は、対応する全ての文字の最大バイト数以上。
+  const buffer = new Uint8Array(text.length * 2);
+  let size = 0;
+  for (const ch of text) {
+    const bytes = mapping.get(ch);
+    if (!bytes) {
+      if (!replaceUnsupported) throw new Error(`Shift_JISで変換できない文字「${ch}」があります。出力文字コードを変更するか、置換を明示的に有効にしてください。`);
+      buffer[size++] = 0x3f; // '?'。勝手に置き換えないこと。
+      continue;
+    }
+    for (const b of bytes) buffer[size++] = b;
+  }
+  return buffer.subarray(0, size);
+}
+
 function updateExportSummary() {
   updateDedupeControls();
+  const isCp932 = ui.outputEncoding.value === "shift_jis";
+  ui.sjisOptions.classList.toggle("hidden", !isCp932);
+  ui.sjisWarning.textContent = "";
+  ui.sjisWarning.classList.remove("has-unmappable");
   if (!activeData) { ui.exportSummary.textContent = ""; ui.download.disabled = true; return; }
   try {
     const { rows, removedRows, removedColumns, duplicateRemoved, blankKeysPreserved } = buildOutputRows(activeData.report);
-    ui.exportSummary.textContent = `出力予定：${rows.length}行 × 見出し${rows[0].length}列 ｜ 削除される行：${removedRows}（重複：${duplicateRemoved}） ｜ 出力しない列：${removedColumns} ｜ 形式：${ui.outputFormat.value.toUpperCase()}`;
+    const encodingLabel = isCp932 ? "Shift_JIS（Windows-31J）" : ui.outputEncoding.value === "utf-8-bom" ? "UTF-8（BOM付き）" : "UTF-8（BOMなし）";
+    ui.exportSummary.textContent = `出力予定：${rows.length}行 × 見出し${rows[0].length}列 ｜ 削除される行：${removedRows}（重複：${duplicateRemoved}） ｜ 出力しない列：${removedColumns} ｜ 形式：${ui.outputFormat.value.toUpperCase()} ｜ 文字コード：${encodingLabel}`;
     ui.exportSummary.classList.remove("invalid");
     if (ui.duplicates.checked) {
       ui.dedupePreview.textContent = `重複として削除予定：${duplicateRemoved}行` + (ui.dedupeMode.value === "columns" ? ` ｜ 判定列がすべて空欄で残す行：${blankKeysPreserved}行` : "") + "。出力ファイルで必ず内容を確認してください。";
+    }
+    if (isCp932) {
+      const unmappable = getUnmappableCharacters(rows);
+      if (unmappable.count > 0) {
+        const example = unmappable.examples.map(x => `「${x.char}」（${x.row}行・${x.column}列）`).join("、");
+        ui.sjisWarning.textContent = `⚠ Shift_JISで表せない文字が${unmappable.count}個あります。例：${example}。` + (ui.replaceUnmappable.checked ? "「?」へ置換して保存します。元の文字情報は失われます。" : "元の文字を守るため、ダウンロードを停止しています。UTF-8に変更するか、置換を明示的に選択してください。");
+        ui.sjisWarning.classList.add("has-unmappable");
+        ui.download.disabled = !ui.replaceUnmappable.checked;
+        return;
+      }
+      ui.sjisWarning.textContent = "✓ この出力データには、Shift_JISで表せない文字は見つかりませんでした。";
     }
     ui.download.disabled = false;
   } catch (error) {
@@ -398,21 +486,25 @@ function updateExportSummary() {
 }
 function downloadCsv() {
   if (!activeData || ui.download.disabled) return;
-  let rows;
-  try { ({ rows } = buildOutputRows(activeData.report)); }
-  catch (error) { showError(error.message); return; }
-  const sep = ui.outputFormat.value === "tsv" ? "\t" : ",";
-  const lines = rows.map(row => row.map(cell => escapeDelimitedCell(cell, sep)).join(sep)).join("\r\n");
-  const bom = ui.outputEncoding.value === "utf-8-bom" ? "\uFEFF" : "";
-  const type = ui.outputFormat.value === "tsv" ? "text/tab-separated-values;charset=utf-8" : "text/csv;charset=utf-8";
-  const blob = new Blob([bom, lines], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  const baseName = (activeData.file.name || "data.csv").replace(/\.[^.]+$/, "");
-  a.download = `${baseName}_整理済み.${ui.outputFormat.value}`;
-  document.body.append(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  try {
+    const { rows } = buildOutputRows(activeData.report);
+    const sep = ui.outputFormat.value === "tsv" ? "\t" : ",";
+    const lines = rows.map(row => row.map(cell => escapeDelimitedCell(cell, sep)).join(sep)).join("\r\n");
+    const isCp932 = ui.outputEncoding.value === "shift_jis";
+    const bom = ui.outputEncoding.value === "utf-8-bom" ? "\uFEFF" : "";
+    const mime = ui.outputFormat.value === "tsv" ? "text/tab-separated-values" : "text/csv";
+    const bytesOrText = isCp932 ? encodeCp932Strict(lines, ui.replaceUnmappable.checked) : bom + lines;
+    const blob = new Blob([bytesOrText], { type: `${mime};charset=${isCp932 ? "shift_jis" : "utf-8"}` });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const baseName = (activeData.file.name || "data.csv").replace(/\.[^.]+$/, "");
+    a.download = `${baseName}_整理済み.${ui.outputFormat.value}`;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error) {
+    showError(error.message || "CSVの保存に失敗しました。設定を確認してください。");
+  }
 }
 function escapeDelimitedCell(value, separator) {
   const s = String(value ?? "");
@@ -427,4 +519,4 @@ function formatBytes(bytes) {
 function showError(message) { ui.error.textContent = message; }
 
 // ブラウザ・Nodeでテストしやすいようにロジックだけを公開する（画面からの動作には影響しない）。
-if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, diagnose, decodeCsv, detectDelimiter, parseColumnSelection, escapeCsvCell, escapeDelimitedCell, shouldProtectFormula, deduplicateRows, buildOutputRows };
+if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, diagnose, decodeCsv, detectDelimiter, parseColumnSelection, escapeCsvCell, escapeDelimitedCell, shouldProtectFormula, deduplicateRows, buildOutputRows, getCp932EncoderMap, getUnmappableCharacters, encodeCp932Strict };

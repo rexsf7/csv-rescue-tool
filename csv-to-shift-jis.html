@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="CSVをUTF-8からShift_JIS（Windows-31J・CP932）に無料で変換する方法。文字化けの対処、絵文字や異体字など変換できない文字の確認、Excelでの注意点を紹介。">
+<title>CSVをShift_JISに変換する無料ツール｜UTF-8・文字化け対策｜CSVレスキュー</title>
+<link rel="canonical" href="https://csv-rescue-tool.pages.dev/csv-to-shift-jis.html"><link rel="stylesheet" href="style.css"></head>
+<body><header class="site-header"><div class="wrap header-inner"><a class="brand" href="./"><span class="brand-mark">CSV</span><span>レスキュー</span></a></div></header>
+<main class="wrap article-main"><div class="breadcrumb"><a href="./">ホーム</a> › Shift_JIS形式で保存</div>
+<section class="hero"><p class="eyebrow">CSV GUIDE 07</p><h1>CSVをShift_JIS（Windows-31J）に変換・保存する方法</h1>
+<p class="hero-copy">UTF-8のCSVを、日本語の業務ソフトや一部のExcel環境で使われるShift_JIS系の文字コードに変換する手順をまとめました。無料・登録不要でブラウザ内で処理できます。</p></section>
+<article class="panel article-body">
+<h2>Shift_JISとWindows-31J（CP932）の違い</h2>
+<p>「Shift_JIS」と呼ばれるファイルには、Windowsの拡張文字を含むWindows-31J（CP932）形式が使われる場合があります。このツールの出力は、一般にWindows-31Jとして扱われる文字の範囲に対応しています。ただし、相手のシステムが厳密なShift_JISだけを受け付ける場合、拡張文字が使えないことがあります。</p>
+<h2>UTF-8からShift_JISに変換する手順</h2>
+<ol>
+<li><a href="./">CSVレスキューのトップページ</a>でファイルを選び、「CSVを診断する」を押します。</li>
+<li>プレビューで日本語が正しく表示されているか確認します。文字化けしていたら「読み込み文字コード」を切り替えて再診断してください。</li>
+<li>診断結果の「変換・整理してダウンロード」にある「出力文字コード」を「Shift_JIS（Windows-31J / CP932）」に変更します。</li>
+<li>「変換できない文字」の警告がないことを確認して「CSVをダウンロード」を押します。</li>
+<li>保存したファイルを利用先のExcelや業務ソフトで開いて文字・行数・列数を確認します。</li>
+</ol>
+<p><a href="sample-encoding.csv" download>変換できない文字を含むテスト用CSVをダウンロード</a>して、警告機能を試すこともできます。</p>
+<h2>変換できない文字がある場合</h2>
+<p>Shift_JIS系で表現できない文字（例：一部の絵文字「😀」や珍しい漢字）が含まれていると、ダウンロードを停止して件数と場所の例を表示します。無断で文字を消したり別の文字に変えたりしないための仕組みです。</p>
+<ul>
+<li><strong>文字を保持したい場合：</strong>出力文字コードを「UTF-8（BOM付き）」や「UTF-8（BOMなし）」に変更してください。</li>
+<li><strong>置換してよい場合：</strong>「変換できない文字を『?』に置き換えて保存する」に明示的にチェックを入れます。元の文字は復元できません。</li>
+<li>記号や似た形の文字でも、環境によって別の文字として扱われることがあります。出力後の内容を必ず確認してください。</li>
+</ul>
+<h2>Excelで文字化けが続く場合</h2>
+<p>Excelのバージョンによっては、Shift_JIS系CSVをダブルクリックで開けることがあります。一方、UTF-8（BOM付き）の方が適している場合もあります。Excelの「データ」→「テキストまたはCSVから」で文字コードを指定する方法も試してください。元のCSVがすでに別の文字へ置き換えられている場合は、再変換だけでは元に戻せません。</p>
+<h2>使う前に知っておきたい注意点</h2>
+<ul>
+<li>読み込みの自動判定は推定です。プレビューに文字化けがあれば手動指定してください。</li>
+<li>元のファイルは書き換えません。出力ファイルには行の削除や列抽出など別のオプションも反映されます。</li>
+<li>列中の引用符や改行を含むCSVでは、取り込み先ソフトの対応も確認してください。</li>
+<li>このツールはブラウザ内でCSV内容を処理し、運営者のサーバーにファイル内容を送信しません。</li>
+</ul>
+<p><a href="./">無料のCSV→Shift_JIS変換ツールを使う →</a></p>
+</article></main><footer class="site-footer"><div class="wrap footer-inner"><span>© CSVレスキュー</span><a href="privacy.html">プライバシーポリシー</a></div></footer></body></html>
