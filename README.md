@@ -1,3 +1,18 @@
+# CSVレスキュー v6 SEO改善版（2026年10月）
+
+このZIPはv6の全ファイルを含む、**追加解説ページだけの軽微な更新**です。CSV診断・変換・差分比較のJavaScript、AdSenseコード、ads.txt、Google所有権確認用タグはそのまま維持しています。
+
+- 追加ページ：`vscode-shift-jis.html`（VS CodeでCSVの文字化けを直す手順）
+- `index.html` にガイドへのリンクを追加
+- `csv-mojibake.html` と `csv-to-shift-jis.html` からの関連リンクを追加
+- `sitemap.xml` に新しいURLを追加
+
+**GitHubへの更新**：今のリポジトリのバックアップを取得後、このフォルダの中身をリポジトリのルートへアップロードして既存の同名ファイルを更新します。新規ファイルも同じ階層へ置きます。GitHub Pagesではなく、既存のCloudflare Pages連携により公開されます。
+
+**公開後に確認**：`https://csv-rescue-tool.pages.dev/vscode-shift-jis.html` が開き、トップから移動できること。Search Consoleで必要に応じてURL検査を行うこと。SEOの順位やアクセス数の増加は保証されません。
+
+---
+
 # CSVレスキュー v6 — 2つのCSV差分比較ツールを追加
 
 サイト: https://csv-rescue-tool.pages.dev/  

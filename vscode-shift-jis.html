@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="VS CodeでShift_JISのCSVが文字化けする場合の直し方。右下のUTF-8から「エンコード付きで再度開く」→「Japanese (Shift JIS)」を選ぶ手順と、UTF-8へ変換する方法を解説。">
+  <link rel="canonical" href="https://csv-rescue-tool.pages.dev/vscode-shift-jis.html">
+  <title>VS CodeでCSVが文字化けする時の直し方｜Shift_JIS・UTF-8の開き方｜CSVレスキュー</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header"><div class="wrap header-inner"><a class="brand" href="./"><span class="brand-mark">CSV</span><span>レスキュー</span></a></div></header>
+  <main class="wrap article-main">
+    <div class="breadcrumb"><a href="./">ホーム</a> › VS CodeでCSVが文字化けする</div>
+    <section class="hero">
+      <p class="eyebrow">CSV GUIDE 09 · VS CODE</p>
+      <h1>VS CodeでCSVが文字化けする時の直し方</h1>
+      <p class="hero-copy">Shift_JISで保存したCSVをVisual Studio Codeで開くと「���O」などに見えることがあります。ファイルを変換する前に、VS Code側で正しい文字コードを指定して開き直してみましょう。</p>
+    </section>
+    <article class="panel article-body">
+      <h2>まず試す：Shift_JISで開き直す4ステップ</h2>
+      <ol>
+        <li><strong>文字化けしたCSVをVS Codeで開いたままにする。</strong>文字化けした内容を上書き保存しないでください。</li>
+        <li>VS Code画面の<strong>右下のステータスバー</strong>に表示されている「UTF-8」などの文字コード名をクリックします。</li>
+        <li>表示されたメニューで<strong>「エンコード付きで再度開く」</strong>（Reopen with Encoding）を選びます。</li>
+        <li>一覧から<strong>「Japanese (Shift JIS)」</strong>を選びます。表示が「名前,部署,メール」のように読めれば完了です。</li>
+      </ol>
+      <p class="article-note"><strong>注意：</strong>「エンコード付きで<strong>保存</strong>」ではなく「エンコード付きで<strong>再度開く</strong>」を選んでください。読み込み方を変えるだけなら、ファイルの中身を変更せずに確認できます。</p>
+      <h2>なぜ文字化けが起きる？</h2>
+      <p>CSVはテキストの形式です。ファイルがWindows-31J（Shift_JIS系）で保存されているのに、エディターがUTF-8として読み込むと、元の文字を正しく復号できず「�」などが表示されることがあります。必ずしも元のCSVが壊れているわけではありません。</p>
+      <p>逆にUTF-8のCSVをShift_JISとして開いても文字化けします。開き直しても読めない場合は、元ファイルの文字コード自体を確認してください。</p>
+      <h2>VS CodeでUTF-8として保存したい場合</h2>
+      <ol>
+        <li>先ほどの手順で<strong>日本語が正しく表示される状態</strong>にします。</li>
+        <li>元ファイルをバックアップしてから、右下の文字コード名を再度クリックします。</li>
+        <li>今度は「エンコード付きで保存」（Save with Encoding）を選び、「UTF-8」を指定します。</li>
+        <li>保存したファイルを開き直し、文字・行数・列数が正しいか確認します。</li>
+      </ol>
+      <p>CSVの重複削除や列の抽出もまとめて行いたい場合は、<a href="./">CSVレスキューの無料変換ツール</a>も利用できます。元のCSVを読み込み、「読み込み文字コード」にShift_JISを指定して日本語を確認し、「出力文字コード」でUTF-8（BOM付き／なし）を選んで保存してください。</p>
+      <h2>毎回文字化けするときは？</h2>
+      <p>VS Codeには文字コードの推定設定もありますが、推定は必ずしも正確ではありません。特に短いCSVや英数字が中心のファイルでは推定が外れることがあります。作業先のシステムが使う文字コードが分かっている場合は、その形式を明示的に指定するのが確実です。</p>
+      <h2>開き直しても直らない場合の確認</h2>
+      <ul>
+        <li><strong>元のCSVを選んでいるか：</strong>変換前・変換後のファイル名が似ていると取り違えやすいため確認します。</li>
+        <li><strong>すでに「�」として保存していないか：</strong>誤った文字コードで開いた内容をそのまま保存した場合、元の文字情報が失われている可能性があります。</li>
+        <li><strong>Excelなど別のアプリでも同じか：</strong>異なるアプリで開き、表示だけの問題か、ファイル内容の問題かを切り分けます。</li>
+        <li><strong>元データがほかの文字コードか：</strong>UTF-8／Shift_JIS以外の形式は、このサイトの変換ツールでは対応できない場合があります。</li>
+      </ul>
+      <h2>よくある質問</h2>
+      <h3>「���O」のように見えるCSVは壊れていますか？</h3>
+      <p>表示だけが乱れている場合があります。上書き保存する前に、Shift_JISで開き直して確認してください。ただし、ファイル自体が破損している可能性もあるため、元ファイルを残しましょう。</p>
+      <h3>Excelで開くときも同じ設定ですか？</h3>
+      <p>設定場所は異なります。Excelでは「データ」→「テキストまたはCSVから」で文字コードを指定できるバージョンがあります。詳しくは<a href="csv-mojibake.html">CSVの文字化け対策</a>も参考にしてください。</p>
+      <h3>Shift_JISとWindows-31Jは同じですか？</h3>
+      <p>一般的なソフトではShift_JISという表示がWindows-31J（CP932）を指す場合がありますが、文字の対応範囲に違いがあります。受け渡し先の指定がある場合は、その条件を確認してください。<a href="csv-to-shift-jis.html">変換時の注意点を見る</a>。</p>
+      <p class="article-note">参考：<a href="https://code.visualstudio.com/docs/editing/codebasics" rel="noopener noreferrer">Visual Studio Code公式ドキュメント（ファイルの文字コード）</a>。VS Codeのバージョン・言語設定によってメニュー名や位置が異なる場合があります。</p>
+      <p><a href="./">無料CSV文字コード変換ツールを使う →</a></p>
+    </article>
+    <nav class="legal-links" aria-label="サイト情報"><a href="about.html">このサイトについて</a><a href="privacy.html">プライバシーポリシー</a><a href="contact.html">お問い合わせ</a></nav>
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><span>© CSVレスキュー</span><a href="./">トップページへ</a></div></footer>
+</body>
+</html>
