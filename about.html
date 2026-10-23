@@ -1,10 +1,30 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="CSVレスキューについて。無料のCSV診断・変換ツールの機能、対応範囲、運営方針をご案内します。"><title>このサイトについて｜CSVレスキュー</title><link rel="stylesheet" href="style.css"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9713647473376060" crossorigin="anonymous"></script>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="canonical" href="https://csv-rescue-tool.pages.dev/about"><meta name="description" content="CSVレスキューについて。無料のCSV診断・変換ツールの機能、対応範囲、運営方針をご案内します。"><title>このサイトについて｜CSVレスキュー</title><link rel="stylesheet" href="style.css"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9713647473376060" crossorigin="anonymous"></script>
 </head>
 <body><header class="site-header"><div class="wrap header-inner"><a class="brand" href="./"><span class="brand-mark">CSV</span><span>レスキュー</span></a></div></header>
-<main class="wrap article-main"><div class="breadcrumb"><a href="./">ホーム</a> › このサイトについて</div><section class="hero"><p class="eyebrow">ABOUT</p><h1>このサイトについて</h1></section><article class="panel article-body">
-<p>CSVレスキューは、CSVデータを日常的に使う方に向けた、無料の診断・変換ツールです。専門的なソフトをインストールせず、ブラウザ内で列数の不一致・空の見出し・重複行を調べられます。</p>
-<h2>提供している機能</h2><ul><li>UTF-8／Shift_JIS系CSVの読み込みと文字コード変換</li><li>列数の不一致、空白・重複する見出し、重複行、空行、空列の診断</li><li>重複行・空行・空列の削除、見出しの補正、短い行の末尾への空欄追加（すべて任意）</li><li>Excel向けのBOM付きUTF-8 CSVとして保存</li><li>CSV⇔TSV変換（出力時に区切り文字を選択）と必要な列の抽出・並べ替え</li></ul>
-<h2>データの扱いと注意点</h2><p>診断と変換はブラウザ内で行い、選択したファイルの内容を運営者のサーバーに送信する仕組みは設けていません。元ファイルは書き換えず、新しいCSVをダウンロードする方式です。</p><p>文字コードの自動推定やCSVの解析には限界があります。自動補正はデータ本来の意味を推測できません。重要なデータは原本を必ず保管し、変換後の内容を確認してご利用ください。</p>
-<h2>お問い合わせ</h2><p>不具合やご意見は<a href="contact.html">お問い合わせページ</a>からお知らせください。</p><p><a href="./">無料CSV診断ツールへ戻る →</a></p></article></main>
-<footer class="site-footer"><div class="wrap footer-inner"><span>© CSVレスキュー</span><a href="privacy.html">プライバシーポリシー</a></div></footer></body></html>
+<main class="wrap article-main" id="main">
+<div class="breadcrumb"><a href="./">ホーム</a> › このサイトについて</div>
+<section class="hero"><p class="eyebrow">ABOUT CSV RESCUE</p><h1>CSVレスキューについて</h1><p class="hero-copy">CSVの文字化け、重複、列ズレ。「どこが問題か分からない」を減らすための無料ブラウザツールです。</p></section>
+<article class="panel article-body">
+<h2>何ができるサイト？</h2>
+<p>CSVレスキューは、CSVやTSVの内容を読み込んで、列数の不一致・空行・重複行などを確認し、必要に応じてファイルを書き出す無料ツールです。アカウント登録やインストールは不要です。文字コードや列の構成が原因でデータを読み込めないとき、手作業で全行を見直す前の確認に役立つことを目指しています。</p>
+<h2>目的ごとの入口</h2>
+<ul><li><strong>CSVを診断・整理する：</strong><a href="./">トップページの診断ツール</a>で文字コードを選び、プレビューを確認してから保存します。</li>
+<li><strong>新旧CSVの違いを確認する：</strong><a href="csv-compare">CSV差分比較</a>で追加・削除・変更を確認します。IDなどのキー列を指定する場合は、その値に重複や空欄がないファイルを使ってください。</li>
+<li><strong>文字化けの原因を知る：</strong><a href="csv-mojibake">CSV文字化けの解説</a>と<a href="vscode-shift-jis">VS Codeの文字コード設定</a>を参照できます。</li>
+<li><strong>重複を安全に削除する：</strong><a href="csv-duplicates">行全体の重複削除</a>と<a href="csv-dedupe-by-column">特定列での重複削除</a>の違いを解説しています。</li></ul>
+<h2>このツールで自動判断しないこと</h2>
+<p>列数の違いや同じ値の検出はできますが、「どの列が正しいか」「同じメールアドレスの行を消してよいか」までは判定できません。誤った文字コードで既に上書きされた文字列の完全な復元にも対応しません。また、ファイルの大きさや端末のメモリによっては処理できない場合があります。</p>
+<h2>ファイルの安全な取り扱い</h2>
+<p>このサイトのCSV読み込み、診断、変換、比較処理はブラウザ内で行います。選択したCSVの内容をサイト運営者のサーバーに送る機能はありません。ただし、サイト閲覧に伴う通信や広告関連の通信は発生し得ます。詳しくは<a href="privacy">プライバシーポリシー</a>をご覧ください。</p>
+<p>元ファイルを上書きせず、出力ファイルを別名で保存します。特に顧客データや取引履歴など重要なCSVでは、作業前にコピーを取り、変換後に行数・列数・値を確認してください。実在する個人情報を不具合報告に添付しないでください。</p>
+<h2>動作確認に使えるサンプル</h2>
+<p>実データがなくても、<a href="sample.csv" download>基本サンプルCSV</a>、<a href="sample-dedupe.csv" download>指定列での重複確認用CSV</a>、<a href="sample-columns-check.csv" download>列数不一致の確認用CSV</a>を使って機能を試せます。</p>
+<h2>運営・問い合わせ</h2>
+<p>CSVレスキューは無料のWebツールとして公開・更新しています。不具合や説明の分かりにくい箇所があれば、<a href="contact">お問い合わせ</a>からご連絡ください。連絡先：<a href="mailto:csvrescue.help@outlook.jp">csvrescue.help@outlook.jp</a>。</p>
+<p class="article-note">最終更新：2026年10月24日。機能・対応範囲はサイト上で公開されている内容が最新です。広告掲載や検索順位の保証はありません。</p>
+<p><a href="./">無料CSV診断ツールに戻る →</a></p>
+</article>
+<nav class="legal-links" aria-label="サイト情報"><a href="privacy">プライバシーポリシー</a><a href="contact">お問い合わせ</a></nav>
+</main>
+<footer class="site-footer"><div class="wrap footer-inner"><span>© CSVレスキュー</span><a href="privacy">プライバシーポリシー</a></div></footer></body></html>

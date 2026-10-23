@@ -61,3 +61,19 @@
 #compare-table td:nth-child(2){max-width:175px}
 @media(max-width:760px){.compare-files{grid-template-columns:1fr}.compare-file-options{grid-template-columns:1fr 1fr}.compare-panel{padding:18px}.compare-go{width:100%}.compare-key-field{margin-left:25px}.compare-main .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){.compare-file-options{grid-template-columns:1fr}}
+
+/* AdSense review quality improvements: hands-on examples, readable reference tables */
+.starter-panel{margin:8px 0 30px}
+.starter-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:0;list-style:none;counter-reset:step;margin:4px 0 14px}
+.starter-steps li{position:relative;background:#f6f9ff;border:1px solid #e0e8f7;border-radius:12px;padding:16px 16px 14px;min-width:0}
+.starter-steps li::before{counter-increment:step;content:counter(step);display:inline-grid;place-items:center;width:26px;height:26px;margin-right:7px;background:#e1e9ff;color:#2748b8;border-radius:50%;font-size:13px;font-weight:800}
+.starter-steps li strong{font-size:14px}
+.starter-steps li p{margin:10px 0 0;font-size:13px;line-height:1.8;color:var(--muted)}
+.example-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.example-card{border:1px solid var(--line);background:#fbfcff;border-radius:11px;padding:14px;min-width:0}
+.example-card pre{margin:10px 0 4px}
+.article-table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.65;margin:14px 0 22px;min-width:490px}
+.article-table th,.article-table td{border:1px solid #d8e1ee;padding:10px 12px;vertical-align:top;text-align:left}
+.article-table th{background:#ecf2fc;color:#263f6b;font-weight:750}
+.article-table tbody tr:nth-child(even){background:#f9fbff}
+@media(max-width:760px){.starter-steps,.example-grid{grid-template-columns:1fr}.article-table{font-size:13px}}

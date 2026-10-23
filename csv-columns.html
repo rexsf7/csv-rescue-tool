@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="CSVの列ズレ・列数不一致が起きる原因と対処方法を解説。カンマ、ダブルクォート、改行の扱いや診断のポイントを紹介。"><title>CSVの列ズレ・列数の不一致を調べる方法｜CSVレスキュー</title><link rel="canonical" href="https://csv-rescue-tool.pages.dev/csv-columns.html"><link rel="stylesheet" href="style.css"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9713647473376060" crossorigin="anonymous"></script>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="CSVの列ズレ・列数不一致が起きる原因と対処方法を解説。カンマ、ダブルクォート、改行の扱いや診断のポイントを紹介。"><title>CSVの列ズレ・列数の不一致を調べる方法｜CSVレスキュー</title><link rel="canonical" href="https://csv-rescue-tool.pages.dev/csv-columns"><link rel="stylesheet" href="style.css"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9713647473376060" crossorigin="anonymous"></script>
 </head>
 <body><header class="site-header"><div class="wrap header-inner"><a class="brand" href="./"><span class="brand-mark">CSV</span><span>レスキュー</span></a></div></header><main class="wrap article-main"><div class="breadcrumb"><a href="./">ホーム</a> › CSVの列ズレ</div><section class="hero"><p class="eyebrow">CSV GUIDE 03</p><h1>CSVの列数が合わない・列ズレが起きる原因</h1><p class="hero-copy">データの列が途中からずれたり、行によって項目数が変わったりするときの確認ポイントです。</p></section><article class="panel article-body">
 <h2>列ズレが起きる代表的な原因</h2><p>CSVは通常、カンマでセルを区切ります。値そのものにカンマが含まれる場合は、値をダブルクォートで囲む必要があります。</p>
@@ -7,7 +7,20 @@
 りんご,"赤くて、甘い果物",200</code></pre>
 <p>このようにダブルクォートが正しく使われていれば、説明の中のカンマは列の区切りとは扱われません。一方、引用符が欠けると列が増えたように読み取られます。</p>
 <h2>列数を診断する手順</h2><ol><li><a href="./">CSVレスキュー</a>でファイルを選択します。</li><li>「区切り文字」がファイルに合っているか確認します。通常はカンマですが、タブやセミコロンの場合もあります。</li><li>「CSVを診断する」を押し、「列数の不一致」を確認します。</li><li>不一致の行番号を参考に元ファイルの引用符・区切り文字をチェックしてください。</li></ol>
+<h2>列ズレを再現して確認する</h2>
+<p><a href="sample-columns-check.csv" download>列数不一致の動作確認CSV</a>をダウンロードして、<a href="./">CSVレスキュー</a>で診断してみてください。見出しが3列のファイルです。</p>
+<pre><code>商品ID,商品名,価格
+A01,"りんご,小玉",200
+A02,みかん
+A03,ぶどう,350,余分な列</code></pre>
+<div class="table-wrap"><table class="article-table"><thead><tr><th>データ行</th><th>読み取れる列数</th><th>診断のポイント</th></tr></thead><tbody>
+<tr><td>A01</td><td>3列</td><td>商品名にカンマがあっても引用符で囲んでいるため正常</td></tr>
+<tr><td>A02</td><td>2列</td><td>価格が欠けている。末尾への空欄追加は可能だが、価格の値は復元できない</td></tr>
+<tr><td>A03</td><td>4列</td><td>余分な項目があり、どれを削除すべきか人の判断が必要</td></tr>
+</tbody></table></div>
+<h2>カンマを含む値の正しい書き方</h2>
+<p>商品名が「りんご,小玉」の場合、CSVでは <code>"りんご,小玉"</code> のように<strong>セル全体をダブルクォートで囲みます</strong>。セル内でダブルクォートを表したい場合は、<code>"</code> を2つ続けて表します。単純なテキスト置換でCSVを修正すると、引用符と区切りの対応が崩れることがあります。</p>
 <h2>短い行に空欄を追加する機能について</h2><p>見出しが4列なのにデータ行が3列の場合、「列が足りない行の末尾に空欄を追加する」を有効にすると、末尾に1つ空欄を加えられます。ただし、空欄が行の途中に必要だった場合、正しい列配置にはなりません。追加してよいか必ず判断してください。</p>
 <h2>セル内改行やダブルクォートにも注意</h2><p>セルの途中に改行を含むCSVは、該当するセルがダブルクォートで囲まれている必要があります。引用符内の改行を含むデータでは、テキストエディタで見える行番号とCSVのレコード数が一致しない場合があります。ツールは可能な範囲で元のテキストの行番号を示します。</p>
 <h2>自動修正で扱えないこと</h2><p>セルが本来どの列に属するべきかの意味判定、欠落した値の復元、列が多すぎる行からの値の削除は行いません。複雑な列ズレや不正な引用符がある場合は、元のデータを手作業で修正する必要があります。</p>
-<p><a href="./">無料のCSV列数診断ツールを使う →</a></p></article></main><footer class="site-footer"><div class="wrap footer-inner"><span>© CSVレスキュー</span><a href="privacy.html">プライバシーポリシー</a></div></footer></body></html>
+<p><a href="./">無料のCSV列数診断ツールを使う →</a></p></article></main><footer class="site-footer"><div class="wrap footer-inner"><span>© CSVレスキュー</span><a href="privacy">プライバシーポリシー</a></div></footer></body></html>
